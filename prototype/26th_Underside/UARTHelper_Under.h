@@ -1,0 +1,13 @@
+#pragma once
+
+#include "TORICA_parameters.h"
+
+
+extern char readUART_BUF[256];
+
+
+// 関数のプロトタイプ宣言
+void initUART();
+void transmitLog(int);
+void receiveLog();
+bool receive_available();
