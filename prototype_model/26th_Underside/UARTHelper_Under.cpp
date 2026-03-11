@@ -32,7 +32,7 @@ void initUART () {
 
 char trans_buff[256]; // 送信する文字列を保存するためのバッファ
 
-void transmitLog (int trans_mode /*ここに値を代入しても何も起こらないが，Airの方と混同しても大丈夫なように...*/) {
+void transmitLog () {
   sprintf(trans_buff, "%.2f,%.2f,%.2f,%.2f,%.2f\n", data_under_bmp_pressure_hPa, data_under_bmp_temperature_deg, data_under_bmp_altitude_m, data_under_urm_altitude_m, data_under_tsd20_altitude_m);
   SerialOUT.print(trans_buff);
 }

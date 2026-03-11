@@ -83,6 +83,8 @@ void setup1() {
 
 void loop() {
   Timer1.run([]() -> void {
+
+    //UART受信
     while (receive_available() == true) {
       Lightup_NeoPixel(RED);
       receiveLog();
@@ -96,6 +98,8 @@ void loop() {
       NeoPixel_off();
     }
 
+
+    //気圧・温度取得
     if (DPS310_is_OK() == true) {
       Lightup_NeoPixel(BLUE);
       read_dps();
@@ -113,6 +117,10 @@ void loop() {
     }
     
 
+    //UART送信
+    transmitLog();
+
+    //for debug
     Serial.print("URM altitude: ");
     Serial.println(data_under_urm_altitude_m);
     Serial.print("Pressure: ");
