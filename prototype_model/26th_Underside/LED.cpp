@@ -1,5 +1,9 @@
 //Xiao(rp2040)内蔵LED制御用関数
 
+/*
+更新日時：2026-03-11 17:09
+*/
+
 #include "LED.h"
 #include <Arduino.h>
 

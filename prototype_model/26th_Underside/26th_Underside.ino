@@ -8,6 +8,7 @@
 #include "URM37.h"
 
 
+
 #include <Wire.h>
 
 
@@ -35,7 +36,6 @@ Timer Timer1;
 Timer Timer2;
 
 
-
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(460800);  //DEBUG用シリアル
@@ -50,14 +50,6 @@ void setup() {
   init_DPS310();
 
   init_NeoPixel();
-
-  Serial.println("Setup Done.");
-
-
-  Timer1.setInterval(50);  //10ms(=100Hz)ごとにTimer1内の動作を実行
-}
-
-void setup1() {
 
   init_echo();
 
@@ -76,7 +68,16 @@ void setup1() {
   }
   write_intLED(0);
 
-  Timer2.setInterval(1000);  //100ms(=10Hz)ごとにTimer2の内容を実行
+
+  Serial.println("Setup Done.");
+
+
+  Timer1.setInterval(50);  //10ms(=100Hz)ごとにTimer1内の動作を実行
+  Timer2.setInterval(50);
+}
+
+void setup1() {
+
 }
 
 
@@ -85,6 +86,7 @@ void loop() {
     while (receive_available() == true) {
       Lightup_NeoPixel(RED);
       receiveLog();
+
       save_SD_BUF(readUART_BUF);
 
       if (receive_available() == false) {
@@ -100,16 +102,23 @@ void loop() {
       NeoPixel_off();
     }
 
-    flashSD();
+    if(SDisActive() == true){
+      Lightup_NeoPixel(GREEN);
+      flashSD();
+      NeoPixel_off();
+    } else {
+      Lightup_NeoPixel(RED);
+      Serial.println("SD is not Active.");
+      NeoPixel_off();
+    }
+    
 
-/*
     Serial.print("URM altitude: ");
     Serial.println(data_under_urm_altitude_m);
     Serial.print("Pressure: ");
     Serial.print(data_under_bmp_pressure_hPa);
     Serial.print("  Temperature: ");
     Serial.println(data_under_bmp_temperature_deg);
-*/
 
   });
 }

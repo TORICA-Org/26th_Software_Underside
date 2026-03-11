@@ -1,3 +1,8 @@
+/*
+更新日時：2026-03-11 17:09
+*/
+
+
 #include "NeoPixel.h"
 #include <Arduino.h>
 
