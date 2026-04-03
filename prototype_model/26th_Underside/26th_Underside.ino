@@ -7,84 +7,22 @@
 #include "SD_Under.h"
 #include "URM37.h"
 
-
-
 #include <Wire.h>
 
-
-//100Hz周期実行用
-class Timer {
-public:
-  void setInterval(int _interval) {
-    interval = _interval;
-  }
-
-  void run(void (*function)()) {
-    // 引数([戻り値の型] *([ポインタ変数名])([引数情報]))
-    if (millis() - last_timestamp >= interval) {
-      last_timestamp = millis();
-      function();
-    }
-  }
-
-private:
-  int interval = 0;
-  unsigned long last_timestamp = 0;
-};
-
-Timer Timer1;
-Timer Timer2;
+//WatchDog用
+#include "hardware/watchdog.h"
+volatile bool core1_alive; //core1の生存確認用フラグ
 
 
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(460800);  //DEBUG用シリアル
-
-  initUART();
-
-  Wire.setSDA(Under_SDA);
-  Wire.setSCL(Under_SCL);
-  Wire.begin();
-  Wire.setClock(400000);
-
-  init_DPS310();
-
-  init_NeoPixel();
-
-  init_echo();
-
-  initSD();
-
-  init_intLED();
-
-  
-  Serial.println("Setup1 Done.");
-
-  for (int i = 0; i<=3; i++){
-    write_intLED(1);
-    delay(500);
-    write_intLED(0);
-    delay(500);
-  }
-  write_intLED(0);
+//ハードウェアタイマー設定
+#include "pico/stdlib.h"
+struct repeating_timer core0_timer;
+struct repeating_timer core1_timer;
 
 
-  Serial.println("Setup Done.");
-
-
-  Timer1.setInterval(50);  //10ms(=100Hz)ごとにTimer1内の動作を実行
-  Timer2.setInterval(50);
-}
-
-void setup1() {
-
-}
-
-
-void loop() {
-  Timer1.run([]() -> void {
-
-    //UART受信
+bool core0_loop(struct core0_timer *t){
+  //ここに100Hzで動かしたいものを書く
+  //UART受信
     while (receive_available() == true) {
       Lightup_NeoPixel(RED);
       receiveLog();
@@ -128,13 +66,21 @@ void loop() {
     Serial.print("  Temperature: ");
     Serial.println(data_under_bmp_temperature_deg);
 
-  });
+
+    //WatchDogでCore1の生存確認
+    if (core1_alive == true) {
+      watchdog_update(); //core1の生存を確認出来たらWatchDogTimerをアップデート
+
+      core1_alive = false; //core1の生存フラグをfalseに戻す
+    }
+
+
+  return true;
 }
 
-
-void loop1() {
-  Timer2.run([]() -> void {
-    write_intLED(HIGH);
+bool core1_loop(struct core1_timer *t){
+  //ここに100Hzで動かしたいものを書く
+  write_intLED(HIGH);
     
     read_echo();
 
@@ -143,5 +89,65 @@ void loop1() {
 
     write_intLED(LOW);
 
-  });
+    core1_alive = true; //ここまで正常に処理を完了できたらwatchdog用の生存フラグを立てる
+
+  return true;
+}
+
+
+
+void setup() {
+  // put your setup code here, to run once:
+  watchdog_enable(2000, 1); //WatchDogを有効化．
+  //2000ms(=2s)経っても反応がない場合，システムが暴走したとみなして強制再起動
+
+  Serial.begin(460800);  //DEBUG用シリアル
+
+  initUART();
+
+  Wire.setSDA(Under_SDA);
+  Wire.setSCL(Under_SCL);
+  Wire.begin();
+  Wire.setClock(400000);
+
+  init_DPS310();
+
+  init_NeoPixel();
+
+  init_echo();
+
+  initSD();
+
+  init_intLED();
+
+  
+  Serial.println("Setup1 Done.");
+
+  for (int i = 0; i<=3; i++){
+    write_intLED(1);
+    delay(500);
+    write_intLED(0);
+    delay(500);
+  }
+  write_intLED(0);
+
+  add_repeating_timer_ms(-10, core0_loop, NULL, &core0_timer);
+  add_repeating_timer_ms(-10, core1_loop, NULL, &core1_timer);
+
+
+  Serial.println("Setup Done.");
+}
+
+void setup1() {
+
+}
+
+
+void loop() {
+  //タイマーが勝手に実行してくれるので，loop内は書かなくていい？
+}
+
+
+void loop1() {
+  //タイマーが勝手に実行してくれるので，loop内は書かなくていい？
 }
