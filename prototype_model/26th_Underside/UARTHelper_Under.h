@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TORICA_parameters.h"
+#include "parameters.h"
 
 
 extern char readUART_BUF[256];

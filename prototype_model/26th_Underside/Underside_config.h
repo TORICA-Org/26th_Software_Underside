@@ -16,6 +16,10 @@ extern const int URTRIG ;
 extern const int Under_SDA ;
 extern const int Under_SCL ;
 
+//tsd20用
+extern const int tsd20_RX;
+extern const int tsd20_TX;
+
 //Xiao rp2040内蔵LED用
 // extern const int LED_R ;
 // extern const int LED_G ;

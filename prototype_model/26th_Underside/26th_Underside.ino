@@ -1,4 +1,4 @@
-#include "TORICA_parameters.h"
+#include "parameters.h"
 #include "Underside_config.h"
 #include "UARTHelper_Under.h"
 #include "DPS310.h"
@@ -20,7 +20,7 @@ struct repeating_timer core0_timer;
 struct repeating_timer core1_timer;
 
 
-bool core0_loop(struct core0_timer *t){
+bool core0_loop(struct repeating_timer *t){
   //ここに100Hzで動かしたいものを書く
   //UART受信
     while (receive_available() == true) {
@@ -78,7 +78,7 @@ bool core0_loop(struct core0_timer *t){
   return true;
 }
 
-bool core1_loop(struct core1_timer *t){
+bool core1_loop(struct repeating_timer *t){
   //ここに100Hzで動かしたいものを書く
   write_intLED(HIGH);
     

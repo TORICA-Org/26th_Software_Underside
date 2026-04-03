@@ -3,7 +3,7 @@
 
 #include "Underside_config.h"
 
-#include tsd20_Serial(tsd20_RX, tsd20_TX, 256);
+SerialPIO tsd20_Serial(tsd20_RX, tsd20_TX, 256);
 
 void init_tsd20(){
     //読み取り用Serial設定

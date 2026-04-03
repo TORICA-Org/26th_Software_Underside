@@ -17,6 +17,11 @@ const int URTRIG = 27;
 const int Under_SDA = 6;
 const int Under_SCL = 7;
 
+//tsd20用
+const int tsd20_RX = D2;
+const int tsd20_TX = D3;
+
+
 //Xiao rp2040内蔵LED用
 // const int LED_R = 17;
 // const int LED_G = 16;
