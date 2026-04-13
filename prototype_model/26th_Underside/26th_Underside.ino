@@ -1,3 +1,6 @@
+/* read_dps(), init_dps()をread_bmp(), init_bmp()に書き換えること */
+
+
 #include "parameters.h"
 #include "Underside_config.h"
 #include "UARTHelper_Under.h"
