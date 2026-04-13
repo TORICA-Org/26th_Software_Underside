@@ -9,6 +9,7 @@
 #include "NeoPixel.h"
 #include "SD_Under.h"
 #include "URM37.h"
+#include "tsd20.h"
 
 #include <Wire.h>
 
@@ -22,10 +23,78 @@ volatile bool core1_alive; //core1の生存確認用フラグ
 struct repeating_timer core0_timer;
 struct repeating_timer core1_timer;
 
+// 100Hz実行用フラグ
+volatile bool core0_timer_triggered = false; 
+volatile bool core1_timer_triggered = false;
 
-bool core0_loop(struct repeating_timer *t){
-  //ここに100Hzで動かしたいものを書く
-  //UART受信
+// 100Hzごとにフラグを立てる
+/* 100Hzごとにフラグを立て，loop()内でフラグが立っているかどうか判別．立っていたら10ms経過後ということなので処理実行． */
+bool core0_timer_callback(struct repeating_timer *t) {
+  core0_timer_triggered = true;
+  return true;
+}
+
+bool core1_timer_callback(struct repeating_timer *t) {
+  core1_timer_triggered = true;
+  return true;
+}
+
+
+
+void setup() {
+  // put your setup code here, to run once:
+  watchdog_enable(2000, 1); //WatchDogを有効化．
+  //2000ms(=2s)経っても反応がない場合，システムが暴走したとみなして強制再起動
+
+  Serial.begin(460800);  //DEBUG用シリアル
+
+  initUART();
+
+  Wire.setSDA(Under_SDA);
+  Wire.setSCL(Under_SCL);
+  Wire.begin();
+  Wire.setClock(400000);
+
+  init_DPS310();
+
+  init_NeoPixel();
+
+  init_echo();
+
+  init_tsd20();
+
+  initSD();
+
+  init_intLED();
+
+  
+  Serial.println("Setup1 Done.");
+
+  for (int i = 0; i<=3; i++){
+    write_intLED(1);
+    delay(500);
+    write_intLED(0);
+    delay(500);
+  }
+  write_intLED(0);
+
+  // ハードウェアタイマー起動
+  add_repeating_timer_ms(-10, core0_timer_callback, NULL, &core0_timer);
+
+  Serial.println("Setup Done.");
+}
+
+void setup1() {
+  // ハードウェアタイマーの設定はコアごとに
+  add_repeating_timer_ms(-10, core1_timer_callback, NULL, &core1_timer);
+}
+
+
+void loop() {
+  if (core0_timer_triggered == true /* 100Hz用フラグが立っていたら */) {
+    core0_timer_triggered = false; // フラグを戻す
+
+    //UART受信
     while (receive_available() == true) {
       Lightup_NeoPixel(RED);
       receiveLog();
@@ -76,81 +145,28 @@ bool core0_loop(struct repeating_timer *t){
 
       core1_alive = false; //core1の生存フラグをfalseに戻す
     }
-
-
-  return true;
+  }
 }
 
-bool core1_loop(struct repeating_timer *t){
-  //ここに100Hzで動かしたいものを書く
-  write_intLED(HIGH);
+
+void loop1() {
+  if (core1_timer_triggered == true) {
+
+    core0_timer_triggered = false; // タイマーのフラグを下す
+
+    write_intLED(HIGH);
     
     read_echo();
 
     Serial.print("URM altitude: ");
     Serial.println(data_under_urm_altitude_m);
 
+    read_tsd20();
+    Serial.print("TSD20 altitude  ");
+    Serial.println(data_under_tsd20_altitude_m);
+
     write_intLED(LOW);
 
     core1_alive = true; //ここまで正常に処理を完了できたらwatchdog用の生存フラグを立てる
-
-  return true;
-}
-
-
-
-void setup() {
-  // put your setup code here, to run once:
-  watchdog_enable(2000, 1); //WatchDogを有効化．
-  //2000ms(=2s)経っても反応がない場合，システムが暴走したとみなして強制再起動
-
-  Serial.begin(460800);  //DEBUG用シリアル
-
-  initUART();
-
-  Wire.setSDA(Under_SDA);
-  Wire.setSCL(Under_SCL);
-  Wire.begin();
-  Wire.setClock(400000);
-
-  init_DPS310();
-
-  init_NeoPixel();
-
-  init_echo();
-
-  initSD();
-
-  init_intLED();
-
-  
-  Serial.println("Setup1 Done.");
-
-  for (int i = 0; i<=3; i++){
-    write_intLED(1);
-    delay(500);
-    write_intLED(0);
-    delay(500);
   }
-  write_intLED(0);
-
-  add_repeating_timer_ms(-10, core0_loop, NULL, &core0_timer);
-  add_repeating_timer_ms(-10, core1_loop, NULL, &core1_timer);
-
-
-  Serial.println("Setup Done.");
-}
-
-void setup1() {
-
-}
-
-
-void loop() {
-  //タイマーが勝手に実行してくれるので，loop内は書かなくていい？
-}
-
-
-void loop1() {
-  //タイマーが勝手に実行してくれるので，loop内は書かなくていい？
 }
