@@ -9,7 +9,7 @@
 //ピン配置定義ファイルを読み込む
 #include "Underside_config.h"
 
-#include "TORICA_parameters.h"
+#include "parameters.h"
 
 #include <SPI.h>
 

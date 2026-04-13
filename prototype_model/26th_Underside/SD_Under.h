@@ -8,7 +8,7 @@
 #include <SD.h>
 #include <TORICA_SD.h>
 
-#include "TORICA_parameters.h"
+#include "parameters.h"
 
 void initSD();
 

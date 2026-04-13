@@ -7,7 +7,7 @@
 #include <Arduino.h>
 #include "URM37.h"
 
-#include "TORICA_parameters.h"
+#include "parameters.h"
 #include "Underside_config.h"
 
 void init_echo() {

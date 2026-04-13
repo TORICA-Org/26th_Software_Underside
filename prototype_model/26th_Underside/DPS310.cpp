@@ -13,7 +13,7 @@ DPS310用コード．25代機体下基板テスト用コード．
 #include <Wire.h> 
 #include <Adafruit_DPS310.h>
 
-#include "TORICA_parameters.h"
+#include "parameters.h"
 
 Adafruit_DPS310 dps;
 sensors_event_t temp_event, pressure_event;
