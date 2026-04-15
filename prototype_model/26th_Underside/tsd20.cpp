@@ -1,6 +1,4 @@
 /* RP2040用TSD20ドライバ */
-#define DEBUG_MODE
-
 
 #include <SerialPIO.h>
 #include "tsd20.h"
@@ -57,14 +55,14 @@ void read_tsd20() {
         uint16_t distance_mm = (dist_H << 8) | dist_L;  // Little-endianなので
         if (distance_mm == 5000) {
 
-            data_under_tsd20_altitude_m = 0.00f; // mmからmに変換
+            data_under_tsd20_altitude_m = 0.00f; // エラーなので0.00mを返す
             #ifdef DEBUG_MODE
             Serial.println("Out of range");
             #endif DEBUG_MODE
         
         } else {
 
-            data_under_tsd20_altitude_m = distance_mm / 1000; // mmからmに変換
+            data_under_tsd20_altitude_m = distance_mm / 1000.0f; // mmからmに変換
             #ifdef DEBUG_MODE
             Serial.print("Distance: ");
             Serial.print(distance_mm);
