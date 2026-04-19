@@ -73,7 +73,7 @@ void read_tsd20() {
         data_under_tsd20_altitude_m = 0.00f;
         #ifdef DEBUG_MODE
         Serial.println("Checksum error");
-        #endif DEBUG_MODE
+        #endif
       }
     }
   }
