@@ -13,12 +13,12 @@
 
 #include <Wire.h>
 
-//WatchDog用
+// WatchDog用
 #include "hardware/watchdog.h"
-volatile bool core1_alive; //core1の生存確認用フラグ
+volatile bool core1_alive; // core1の生存確認用フラグ
 
 
-//ハードウェアタイマー設定
+// ハードウェアタイマー設定
 #include "pico/stdlib.h"
 struct repeating_timer core0_timer;
 struct repeating_timer core1_timer;
@@ -43,8 +43,8 @@ bool core1_timer_callback(struct repeating_timer *t) {
 
 void setup() {
   // put your setup code here, to run once:
-  watchdog_enable(2000, 1); //WatchDogを有効化．
-  //2000ms(=2s)経っても反応がない場合，システムが暴走したとみなして強制再起動
+  watchdog_enable(2000, 1); // WatchDogを有効化．
+  // 2000ms(=2s)経っても反応がない場合，システムが暴走したとみなして強制再起動
 
   Serial.begin(460800);  //DEBUG用シリアル
 
@@ -152,7 +152,7 @@ void loop() {
 void loop1() {
   if (core1_timer_triggered == true) {
 
-    core0_timer_triggered = false; // タイマーのフラグを下す
+    core1_timer_triggered = false; // タイマーのフラグを下す
 
     write_intLED(HIGH);
     
