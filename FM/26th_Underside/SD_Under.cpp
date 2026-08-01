@@ -59,6 +59,10 @@ bool save_SD_Queue(const char* BUF) {
 // Core1から呼び出すキュー処理・SD書き込み関数
 void process_SD_Queue() {
     if (!sd.SDisActive) {
+        // SDがアクティブでない場合、キューが溢れるのを防ぐために空にする
+        SDLogEntry dummy;
+        while (queue_try_remove(&sd_queue, &dummy)) {}
+
         // SDがアクティブでない場合、3秒ごとに再初期化を試みる
         static uint32_t last_retry_time = 0;
         uint32_t now = millis();

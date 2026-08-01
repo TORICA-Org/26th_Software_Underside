@@ -62,8 +62,8 @@ void setup() {
   // ハードウェアタイマー起動
   add_repeating_timer_ms(-10, core0_timer_callback, NULL, &core0_timer);
 
-  watchdog_enable(2000, 1);  // WatchDogを有効化．
-  // 2000ms(=2s)経っても反応がない場合，システムが暴走したとみなして強制再起動
+  watchdog_enable(3000, 1);  // WatchDogを有効化．
+  // 3000ms(=3s)経っても反応がない場合，システムが暴走したとみなして強制再起動
 
   // セットアップ終了を示す合図
   write_intLED(0);
